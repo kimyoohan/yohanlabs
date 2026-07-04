@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How to verify your Shopify store backup actually restores | Yohan Labs</title>
+  <meta name="description" content="A merchant-friendly restore-drill checklist for Shopify themes, content, products, and backup coverage.">
+  <meta property="og:title" content="How to verify your Shopify store backup actually restores | Yohan Labs">
+  <meta property="og:description" content="A merchant-friendly restore-drill checklist for Shopify themes, content, products, and backup coverage.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://kimyoohan.github.io/yohanlabs/articles/verify-shopify-store-backup-restores.html">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="../index.html" aria-label="Yohan Labs home"><span class="mark">Y</span><span>Yohan Labs</span></a>
+    <nav aria-label="Primary">
+      <a href="../index.html#apps">Apps</a>
+      <a href="../articles/">Articles</a>
+      <a href="../privacy/">Privacy</a>
+      <a href="../support.html">Support</a>
+    </nav>
+  </header>
+  <main>
+    <article class="article">
+      <p class="eyebrow">Shopify guide</p>
+      <h1>How to verify your Shopify store backup actually restores</h1>
+      
+<p>A backup is only useful if it can be restored. That sounds obvious until a store owner discovers during an emergency that the archive is incomplete, corrupted, missing the live theme, or unable to explain what changed. The phrase "we have backups" is a starting point, not evidence. What you need is a repeatable restore drill: a controlled process that proves the archive can be read, checked, and used to reconstruct the important pieces of the store.</p>
+<p>Shopify stores are not a single file. A theme has templates, sections, snippets, assets, config, locales, and JSON data. Store content may include products, pages, navigation, policies, redirects, metafields, third-party app configuration, and data that lives outside Shopify entirely. Some areas are easy to export; others require APIs or app-specific backups. A good restore plan begins by mapping those surfaces instead of assuming one backup vendor covers everything.</p>
+<h2>Define what "restored" means</h2>
+<p>For a theme, restored might mean that every file in the archive can be read, every checksum matches, key templates parse, and the file count matches the expected manifest. For products, it might mean that product IDs, handles, titles, variants, prices, images, and status are present in a recoverable export. For pages and navigation, it might mean that handles, titles, body hashes, and menu structures are captured. For third-party apps, it might mean you have export files, screenshots, configuration notes, or vendor-specific recovery instructions.</p>
+<p>Do not define restoration only as "we can download a zip." A zip can be corrupt. It can be old. It can omit an unpublished but important theme. It can include files but not tell you which version was live on the day of an incident. Your definition should include integrity, age, coverage, and usability.</p>
+<h2>Build a coverage map</h2>
+<p>Create a simple table with rows for live theme, unpublished themes, products, collections, pages, blogs, articles, navigation, policies, redirects, files, metaobjects, app settings, email templates, and external services. Add columns for backup source, frequency, retention, restore method, owner, last verified date, and known gaps. The value of the table is not that it is pretty. The value is that it forces uncomfortable questions before an outage.</p>
+<p>Some surfaces will be "covered." Some will be "visible but not enabled." Some will be "not Shopify-visible" because the data lives in an app or service. Some will "require higher scope" because the current backup tool cannot read it. That language is more useful than a vague green check because it tells the merchant what to do next.</p>
+<h2>Verify integrity, not just existence</h2>
+<p>For theme files, compute and store checksums for every file in the snapshot. During the drill, re-read the archive and recompute checksums. If a single file differs unexpectedly or cannot be read, the drill should fail loudly. Track file count, total bytes, manifest hash, and archive size. These numbers are quick signals that something changed or the archive is incomplete.</p>
+<p>For structured resources, store hashes of the body or metadata that matters. You do not always need to store every full object forever, but you do need enough information to detect whether a resource was captured and whether it changed between snapshots. Diffs are especially helpful after a bad deployment because they tell you which templates, sections, locales, or assets changed.</p>
+<h2>Run drills on a schedule</h2>
+<p>A restore drill should be routine. Weekly is a sensible default for active stores; high-change stores may need more frequent checks. The drill should be automated enough that it runs without heroic effort, but explicit enough that someone can read the report. A pass/fail result should name checked files, failed files, archive age, snapshot time, and any coverage gaps.</p>
+<p>Do not wait for a redesign, migration, or emergency to test recovery. Those are exactly the moments when no one has time to discover missing credentials, expired vendor plans, or misunderstood export formats. Put renewal dates and backup vendor support links next to your drill reports so the operational details are visible before a crisis.</p>
+<h2>Manual restore-drill checklist</h2>
+<p>Pick a recent snapshot. Confirm which theme was live at the time. Download or read the archive from storage. Verify the manifest hash. Recompute per-file checksums. Count files and compare total bytes. Parse key templates and JSON files. Open representative assets. Compare the latest snapshot to the previous snapshot and review added, removed, changed, or possibly renamed files. Confirm that products, pages, and navigation are covered by a separate export or snapshot. Record gaps. Store the report somewhere the team can find during an incident.</p>
+<p>If your process includes creating an unpublished test theme, make that explicit and non-destructive. Never run a live restore drill that changes production unless the team has approved the blast radius and rollback plan. For many merchants, an archive-read drill is the right first maturity level because it catches corruption and coverage gaps without touching the store.</p>
+<h2>Common gaps merchants miss</h2>
+<p>The first gap is app configuration. Reviews, subscriptions, search rules, form settings, loyalty programs, and wholesale rules may live in apps. Shopify theme and product backups do not automatically preserve those settings. The second gap is unpublished themes. They often contain redesign work or emergency rollback versions. The third gap is navigation and pages, which are easy to forget until a restored theme points to missing content. The fourth gap is retention. A backup that keeps only seven days may not help if damage is discovered after a month.</p>
+<p>The fifth gap is proof. A vendor dashboard that says backup complete is useful, but it is not the same as your own drill report showing that an archive was read and checked. Independent verification gives you a second signal.</p>
+<h2>Where RestoreDrill fits</h2>
+<p>RestoreDrill is built around that verification layer. It archives themes off-store, stores per-file checksums, runs weekly archive-read drills, reports pass/fail integrity, shows theme diffs, maps coverage, and lets merchants track backup vendor renewal reminders. The current MVP is read-only and non-destructive; it does not write to the live store and does not promise guaranteed recovery.</p>
+<p>That positioning is important. A restore verification app is not the same as a full disaster recovery vendor, and it does not remove the need to understand app-specific data. Its job is to prove that the archive it controls is readable, that files match their checksums, that important Shopify-visible surfaces are mapped, and that gaps are visible before the day you need a restore.</p>
+<h2>Make the report usable</h2>
+<p>A good drill report should be understandable by the person who will coordinate recovery, not only by the developer who built the theme. Include the snapshot date, theme name and role, checked file count, failed file count, changed files, coverage gaps, and next recommended action. Export formats such as HTML, CSV, and JSON serve different audiences: HTML for support packets, CSV for spreadsheets, JSON for technical archives.</p>
+<p>Once a month, read the latest report as if production is broken. Can you identify the latest healthy archive? Can you see what changed? Can you reach the vendor? Do you know which surfaces are not covered? If the answer is yes, you have more than a backup. You have recovery evidence.</p>
+    </article>
+  </main>
+  <footer class="footer">
+    <p>Yohan Labs builds focused, reliable apps for Shopify merchants.</p>
+    <p><a href="mailto:azij781123@gmail.com">azij781123@gmail.com</a> · <a href="../privacy/">Privacy</a></p>
+  </footer>
+  
+</body>
+</html>

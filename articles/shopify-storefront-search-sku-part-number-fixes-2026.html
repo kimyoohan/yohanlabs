@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shopify storefront search not finding SKUs or part numbers? Causes and fixes (2026) | Yohan Labs</title>
+  <meta name="description" content="A practical diagnostic guide for Shopify merchants whose storefront search misses SKUs, barcodes, UPCs, or part numbers.">
+  <meta property="og:title" content="Shopify storefront search not finding SKUs or part numbers? Causes and fixes (2026) | Yohan Labs">
+  <meta property="og:description" content="A practical diagnostic guide for Shopify merchants whose storefront search misses SKUs, barcodes, UPCs, or part numbers.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://kimyoohan.github.io/yohanlabs/articles/shopify-storefront-search-sku-part-number-fixes-2026.html">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="../index.html" aria-label="Yohan Labs home"><span class="mark">Y</span><span>Yohan Labs</span></a>
+    <nav aria-label="Primary">
+      <a href="../index.html#apps">Apps</a>
+      <a href="../articles/">Articles</a>
+      <a href="../privacy/">Privacy</a>
+      <a href="../support.html">Support</a>
+    </nav>
+  </header>
+  <main>
+    <article class="article">
+      <p class="eyebrow">Shopify guide</p>
+      <h1>Shopify storefront search not finding SKUs or part numbers? Causes and fixes (2026)</h1>
+      
+<p>When a shopper searches a SKU, barcode, UPC, or manufacturer part number, the intent is unusually clear. They are not browsing a collection. They probably copied the code from a repair manual, invoice, packaging, reorder sheet, or marketplace listing. If the storefront returns no results or shows vaguely similar products, the store has not just a search problem; it has a high-intent checkout leak.</p>
+<p>This has become a sharper pain point in 2026 because more merchants are comparing three different search experiences: predictive suggestions while typing, the full search results page after pressing enter, and any third-party search layer or theme customization already installed. Those experiences can disagree. Shopify's Predictive Search API documents that product search can include fields such as title, product type, variant title, vendor, variant SKU, and variant barcode, but the default predictive field set is title, product type, variant title, and vendor. That means a theme can look healthy for product-name queries while still failing identifier searches unless its predictive request includes the right fields.</p>
+<p>In June 2026, merchants publicly reported fresh storefront search surprises around SKU behavior, including cases where a family of SKU prefixes stopped returning the expected group of products. The useful takeaway is not that every store has the same bug. It is that SKU search is sensitive to theme code, query parameters, tokenization, product visibility, and whether the request is predictive search or storefront search. Treat it as a system with several layers, not as one checkbox.</p>
+<h2>Start by naming the exact failure</h2>
+<p>Before editing theme files, test five searches and write down what happens in both predictive suggestions and the full results page. Search a full product title copied from admin. Search a unique title word. Search a full SKU. Search a SKU prefix. Search a manufacturer part number or barcode. Use an incognito browser and a clean mobile session so cached JavaScript or browser extensions do not blur the result.</p>
+<p>If product titles fail, start with product eligibility: active status, Online Store channel availability, publication, passworded or unpublished content, and Search & Discovery settings. If titles work but SKUs fail, move to searchable fields and identifier normalization. If predictive suggestions fail but the full results page works, focus on the predictive search request made by the theme. If full results work but ranking is messy, the problem is relevance and exact-match precedence rather than basic indexing.</p>
+<h2>Check predictive search fields</h2>
+<p>Many modern themes call the predictive search endpoint as the shopper types. If that request only searches title, product type, variant title, and vendor, a SKU stored in the variant SKU field may not appear in suggestions. Shopify's documentation lists variants.sku and variants.barcode as accepted fields, so theme developers can include them in the request. The exact file and code differ by theme, and theme updates can overwrite custom edits, so keep a changelog.</p>
+<p>Do not assume that adding a field fixes every case. Predictive search returns a limited number of suggestions, has its own partial-word behavior, and does not always behave the same as the full storefront search page. It is still the right first check because a missing field is common, visible in the network request, and cheap to fix.</p>
+<h2>Understand partial matches and tokenization</h2>
+<p>SKU and part-number search often fails because identifiers are not natural language. Search engines are tuned for words, not codes such as AB-2047-L, 8800123456789, or MFR_XL_05. Hyphens, spaces, dots, leading zeros, and long numeric strings can change how a query is tokenized. A search for AB2047 may not match AB-2047 if the system treats them differently. A prefix such as JM-XL may match only when it is treated as the beginning of a searchable token. A barcode may behave differently from a dashed vendor code.</p>
+<p>Build a normalization test sheet. For each important identifier, test the stored value, lowercase, uppercase, no spaces, no dashes, common punctuation, prefix only, and the code customers actually paste from invoices. This tells you whether the issue is indexing, normalization, ranking, or missing synonyms.</p>
+<h2>Avoid title stuffing as the main fix</h2>
+<p>One workaround is to paste every SKU and alternate part number into product titles. It can work for search because titles are highly searchable. It also creates costs: ugly product cards, worse collection scanning, duplicated codes in SEO snippets, translation clutter, higher risk of showing the wrong variant, and manual maintenance when suppliers change identifiers. For a small catalog, a short title suffix may be acceptable. For parts, components, B2B, beauty resale, or hardware catalogs, title stuffing becomes a data hygiene problem.</p>
+<p>A better catalog-level workaround is to use structured locations for identifiers: variant SKU, barcode, vendor, tags where appropriate, and metafields when a custom frontend or app can read them. Then maintain an alias dictionary for manufacturer codes, old SKUs, supplier codes, and punctuation variants. The goal is to make codes searchable without turning customer-facing names into storage buckets.</p>
+<h2>Use no-result searches as a backlog</h2>
+<p>Failed search terms are a product-data backlog. Export or review searches with no results, group them by intent, and decide the fix. Some are misspellings that belong in synonyms. Some are SKUs that need punctuation normalization. Some are discontinued items that deserve a replacement page. Some are customer-service questions that should be content, not products. High-frequency exact identifiers should be fixed before broad merchandising tweaks because the shopper already knows what they want.</p>
+<p>When you fix a query, retest in both predictive and full results. Then monitor whether the term disappears from no-result reports. This closes the loop and prevents one-off theme edits from becoming unmeasured guesswork.</p>
+<h2>Choose the right solution path</h2>
+<p>There are four practical paths. First, adjust your theme's predictive search fields to include variant SKU or barcode when that is the missing piece. Second, use Shopify Search & Discovery settings and synonym work when the issue is wording rather than exact identifiers. Third, adopt a broader search app when you need merchandising, typo tolerance, filtering, semantic relevance, and analytics across a large catalog. Fourth, add a focused exact-identifier layer when the pain is specifically SKU, barcode, vendor code, or part-number lookup.</p>
+<p>ExactFind fits the fourth path. It keeps an exact-match index of variant identifiers, supports aliases for manufacturer and legacy codes, adds a search block and optional theme embed, and records no-result exact queries so merchants can create missing aliases. It is not a replacement for a full search suite. That distinction matters: if your store needs advanced filters and relevance tuning, choose a broader search solution. If the urgent problem is that a shopper pasting a known part number cannot reach the right variant, a focused exact layer is often cleaner.</p>
+<h2>A practical 30-minute checklist</h2>
+<p>Copy five products from admin and test title, unique title word, full SKU, SKU prefix, barcode, and manufacturer code. Inspect the predictive search network request and confirm which fields it searches. Check whether products are active and available to the Online Store. Review Search & Discovery settings for product visibility and result types. Test punctuation variants. Search from mobile and desktop. Review no-result searches and group by identifier, synonym, discontinued product, and content question. Fix the highest-intent exact identifiers first, then retest and document the change.</p>
+<p>The best storefront search work is boring in a good way. It turns vague complaints into specific failed queries, specific failed queries into catalog or theme changes, and those changes into measured fewer no-result searches. For SKU-heavy stores, that discipline is usually worth more than another round of generic keyword tweaking.</p>
+<p class="source-note">References: Shopify Predictive Search API documentation and public Shopify Community discussions from June 2026 and earlier about SKU search behavior.</p>
+    </article>
+  </main>
+  <footer class="footer">
+    <p>Yohan Labs builds focused, reliable apps for Shopify merchants.</p>
+    <p><a href="mailto:azij781123@gmail.com">azij781123@gmail.com</a> · <a href="../privacy/">Privacy</a></p>
+  </footer>
+  
+</body>
+</html>
